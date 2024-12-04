@@ -12,12 +12,9 @@ typedef struct part {
 } part;
 
 #define FILE_NAME "stock.txt"
-void display(part* head);
-part* addPart(part* head);
-part* removePart(part* head);
-void modifyPart(part* head);
+
 void saveToFile(part* head);
-part* loadFromFile();
+
 
 
 void display(part* head) {
