@@ -13,10 +13,53 @@ typedef struct part {
 
 #define FILE_NAME "stock.txt"
 
+// Function declarations
 void saveToFile(part* head);
+void display(part* head);
+void addPart(part** head);
+void removePart(part** head);
+void modifyPart(part** head);
+part* loadFromFile();
 
+// Function to load stock from file
+part* loadFromFile() {
+    FILE* file = fopen(FILE_NAME, "r");
+    if (file == NULL) {
+        printf("Failed to open file for reading. Starting with an empty stock.\n");
+        return NULL; // Return empty list
+    }
 
+    part* head = NULL;
+    part* newPart = NULL;
 
+    while (1) {
+        newPart = (part*)malloc(sizeof(part)); // Allocate memory
+        if (newPart == NULL) {
+            printf("Memory allocation failed.\n");
+            fclose(file);
+            return head; // Return the loaded parts so far
+        }
+
+        if (fscanf(file, "%s %s %d %d %d", 
+                   newPart->reference, 
+                   newPart->name, 
+                   &newPart->quantity, 
+                   &newPart->sellingprice, 
+                   &newPart->purchaseprice) != 5) {
+            free(newPart); // Free memory if fscanf fails
+            break;
+        }
+
+        newPart->next = head; // Add to the linked list
+        head = newPart;
+    }
+
+    fclose(file); // Close the file
+    printf("Stock loaded from file successfully.\n");
+    return head;
+}
+
+// Function to display the stock
 void display(part* head) {
     if (head == NULL) {
         printf("Stock is empty.\n");
@@ -34,12 +77,14 @@ void display(part* head) {
     }
 }
 
-part* addPart(part* head) {
+// Function to add a part to the stock
+void addPart(part** head) {
     part* newPart = (part*)malloc(sizeof(part));
     if (newPart == NULL) {
         printf("Memory allocation failed.\n");
-        return head;
+        return;
     }
+
     printf("Enter reference: ");
     scanf("%s", newPart->reference);
     printf("Enter name: ");
@@ -50,23 +95,26 @@ part* addPart(part* head) {
     scanf("%d", &newPart->sellingprice);
     printf("Enter purchase price: ");
     scanf("%d", &newPart->purchaseprice);
-    newPart->next = head;
-    head = newPart;
+
+    newPart->next = *head;
+    *head = newPart;
+
     printf("Part added successfully.\n");
-    saveToFile(head);
-    return head;
+    saveToFile(*head);
 }
 
-part* removePart(part* head) {
-    if (head == NULL) {
+// Function to remove a part from the stock
+void removePart(part** head) {
+    if (*head == NULL) {
         printf("Stock is empty. Nothing to remove.\n");
-        return head;
+        return;
     }
+
     char ref[20];
     printf("Enter reference of the part to remove: ");
     scanf("%s", ref);
 
-    part *current = head, *previous = NULL;
+    part *current = *head, *previous = NULL;
     while (current != NULL && strcmp(current->reference, ref) != 0) {
         previous = current;
         current = current->next;
@@ -74,30 +122,32 @@ part* removePart(part* head) {
 
     if (current == NULL) {
         printf("Part not found.\n");
-        return head;
+        return;
     }
 
     if (previous == NULL) {
-        head = current->next;
+        *head = current->next;
     } else {
         previous->next = current->next;
     }
+
     free(current);
-    printf("Part removed successfully.\n");
-    saveToFile(head);
-    return head;
+    printf("Part removed.\n");
+    saveToFile(*head);
 }
 
-void modifyPart(part* head) {
-    if (head == NULL) {
+// Function to modify a part's details
+void modifyPart(part** head) {
+    if (*head == NULL) {
         printf("Stock is empty. Nothing to modify.\n");
         return;
     }
+
     char ref[20];
     printf("Enter reference of the part to modify: ");
     scanf("%s", ref);
 
-    part* current = head;
+    part* current = *head;
     while (current != NULL && strcmp(current->reference, ref) != 0) {
         current = current->next;
     }
@@ -113,53 +163,34 @@ void modifyPart(part* head) {
     scanf("%d", &current->sellingprice);
     printf("Enter new purchase price: ");
     scanf("%d", &current->purchaseprice);
+
     printf("Part modified successfully.\n");
-    saveToFile(head);
+    saveToFile(*head);
 }
 
+// Function to save stock to file
 void saveToFile(part* head) {
     FILE* file = fopen(FILE_NAME, "w");
     if (file == NULL) {
         printf("Failed to open file for saving.\n");
         return;
     }
+
     part* current = head;
     while (current != NULL) {
         fprintf(file, "%s %s %d %d %d\n", current->reference, current->name, current->quantity, current->sellingprice, current->purchaseprice);
         current = current->next;
     }
+
     fclose(file);
-    printf("Stock saved to file.\n");
+    printf("Stock saved to file successfully.\n");
 }
 
-part* loadFromFile() {
-    FILE* file = fopen(FILE_NAME, "r");
-    if (file == NULL) {
-        printf("No existing stock file found. Starting fresh.\n");
-        return NULL;
-    }
-
-    part* head = NULL;
-    part* newPart = NULL;
-    while (!feof(file)) {
-        newPart = (part*)malloc(sizeof(part));
-        if (fscanf(file, "%s %s %d %d %d", newPart->reference, newPart->name, &newPart->quantity, &newPart->sellingprice, &newPart->purchaseprice) == 5) {
-            newPart->next = head;
-            head = newPart;
-        } else {
-            free(newPart);
-            break;
-        }
-    }
-    fclose(file);
-    printf("Stock loaded from file.\n");
-    return head;
-}
-
+// Main function
 int main(void) {
     int choice;
-    part* head = loadFromFile();
-
+    part* head = loadFromFile(); // Load stock at the start of the program
+    
     do {
         printf("\n---------- STOCK MANAGER ----------\n");
         printf("1. Add a part to the stock.\n");
@@ -172,13 +203,13 @@ int main(void) {
 
         switch (choice) {
             case 1:
-                head = addPart(head);
+                addPart(&head);
                 break;
             case 2:
-                head = removePart(head);
+                removePart(&head);
                 break;
             case 3:
-                modifyPart(head);
+                modifyPart(&head);
                 break;
             case 4:
                 display(head);
@@ -192,11 +223,14 @@ int main(void) {
                 break;
         }
     } while (choice != 5);
+    
+    // Free memory
     part* temp;
     while (head != NULL) {
         temp = head;
         head = head->next;
         free(temp);
     }
+
     return 0;
 }
