@@ -13,7 +13,6 @@ typedef struct part {
 
 #define FILE_NAME "stock.txt"
 
-// Function declarations
 void saveToFile(part* head);
 void display(part* head);
 void addPart(part** head);
@@ -21,23 +20,23 @@ void removePart(part** head);
 void modifyPart(part** head);
 part* loadFromFile();
 
-// Function to load stock from file
+
 part* loadFromFile() {
     FILE* file = fopen(FILE_NAME, "r");
     if (file == NULL) {
         printf("Failed to open file for reading. Starting with an empty stock.\n");
-        return NULL; // Return empty list
+        return NULL; 
     }
 
     part* head = NULL;
     part* newPart = NULL;
 
     while (1) {
-        newPart = (part*)malloc(sizeof(part)); // Allocate memory
+        newPart = (part*)malloc(sizeof(part)); 
         if (newPart == NULL) {
             printf("Memory allocation failed.\n");
             fclose(file);
-            return head; // Return the loaded parts so far
+            return head;
         }
 
         if (fscanf(file, "%s %s %d %d %d", 
@@ -46,20 +45,20 @@ part* loadFromFile() {
                    &newPart->quantity, 
                    &newPart->sellingprice, 
                    &newPart->purchaseprice) != 5) {
-            free(newPart); // Free memory if fscanf fails
+            free(newPart);
             break;
         }
 
-        newPart->next = head; // Add to the linked list
+        newPart->next = head; 
         head = newPart;
     }
 
-    fclose(file); // Close the file
+    fclose(file); 
     printf("Stock loaded from file successfully.\n");
     return head;
 }
 
-// Function to display the stock
+
 void display(part* head) {
     if (head == NULL) {
         printf("Stock is empty.\n");
@@ -77,7 +76,7 @@ void display(part* head) {
     }
 }
 
-// Function to add a part to the stock
+
 void addPart(part** head) {
     part* newPart = (part*)malloc(sizeof(part));
     if (newPart == NULL) {
@@ -103,7 +102,7 @@ void addPart(part** head) {
     saveToFile(*head);
 }
 
-// Function to remove a part from the stock
+
 void removePart(part** head) {
     if (*head == NULL) {
         printf("Stock is empty. Nothing to remove.\n");
@@ -136,7 +135,7 @@ void removePart(part** head) {
     saveToFile(*head);
 }
 
-// Function to modify a part's details
+
 void modifyPart(part** head) {
     if (*head == NULL) {
         printf("Stock is empty. Nothing to modify.\n");
@@ -168,7 +167,7 @@ void modifyPart(part** head) {
     saveToFile(*head);
 }
 
-// Function to save stock to file
+
 void saveToFile(part* head) {
     FILE* file = fopen(FILE_NAME, "w");
     if (file == NULL) {
@@ -186,10 +185,10 @@ void saveToFile(part* head) {
     printf("Stock saved to file successfully.\n");
 }
 
-// Main function
+
 int main(void) {
     int choice;
-    part* head = loadFromFile(); // Load stock at the start of the program
+    part* head = loadFromFile(); 
     
     do {
         printf("\n---------- STOCK MANAGER ----------\n");
@@ -224,7 +223,6 @@ int main(void) {
         }
     } while (choice != 5);
     
-    // Free memory
     part* temp;
     while (head != NULL) {
         temp = head;
