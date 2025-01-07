@@ -48,7 +48,6 @@ part* loadFromFile() {
             free(newPart);
             break;
         }
-
         newPart->next = head; 
         head = newPart;
     }
@@ -58,32 +57,30 @@ part* loadFromFile() {
     return head;
 }
 
-
 void display(part* head) {
     if (head == NULL) {
         printf("Stock is empty.\n");
         return;
     }
+    printf("+------------------+------------------+----------+--------------+---------------+\n");
+    printf("| Reference        | Name             | Quantity | Selling Price| Purchase Price|\n");
+    printf("+------------------+------------------+----------+--------------+---------------+\n");
+
     part* p = head;
     while (p != NULL) {
-        printf("Reference: %s\n", p->reference);
-        printf("Name: %s\n", p->name);
-        printf("Quantity: %d\n", p->quantity);
-        printf("Selling Price: %d\n", p->sellingprice);
-        printf("Purchase Price: %d\n", p->purchaseprice);
-        printf("----------------------\n");
+        printf("| %-16s | %-16s | %-8d | %-12d | %-13d |\n", 
+               p->reference, p->name, p->quantity, p->sellingprice, p->purchaseprice);
         p = p->next;
     }
+
+    printf("+------------------+------------------+----------+--------------+---------------+\n");
 }
-
-
 void addPart(part** head) {
     part* newPart = (part*)malloc(sizeof(part));
     if (newPart == NULL) {
         printf("Memory allocation failed.\n");
         return;
     }
-
     printf("Enter reference: ");
     scanf("%s", newPart->reference);
     printf("Enter name: ");
@@ -222,7 +219,7 @@ int main(void) {
                 break;
         }
     } while (choice != 5);
-    
+
     part* temp;
     while (head != NULL) {
         temp = head;
